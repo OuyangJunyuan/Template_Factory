@@ -6,11 +6,11 @@ constexpr auto full_type_name() noexcept
 	std::string_view name, prefix, suffix;
 #ifdef __clang__
 	name = __PRETTY_FUNCTION__;
-	prefix = "auto type_name() [T = ";
+	prefix = "auto full_type_name() [T = ";
 	suffix = "]";
 #elif defined(__GNUC__)
 	name = __PRETTY_FUNCTION__;
-	prefix = "constexpr auto type_name() [with T = ";
+	prefix = "constexpr auto full_type_name() [with T = ";
 	suffix = "]";
 #elif defined(_MSC_VER)
 	name = __FUNCSIG__;
@@ -40,6 +40,7 @@ constexpr auto type_name() noexcept
 	auto full_name = full_type_name<T>();
 	return type_name_without_ns(full_name);
 }
+
 
 namespace spiritsaway::entity_component_event
 {
