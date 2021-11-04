@@ -143,46 +143,6 @@ private:
 
 
 template<typename Base, typename CreatorFunc>
-struct creator_by_typeid {
-private:
-    static std::unordered_map<std::size_t, CreatorFunc> data;
-public:
-    using FuncT = CreatorFunc;
-
-    template<typename T>
-    static bool add(CreatorFunc f) {
-        static_assert(std::is_base_of_v<Base, T>, "T should be derivate of Base");
-        auto cur_hash = base_type_hash<Base>::template hash<T>();
-        auto &data = GetData();
-
-        bool result = data.find(cur_hash) != data.end();
-        data[cur_hash] = f;
-        return result;
-    }
-
-    template<typename T, class... Ts>
-    static auto make(Ts &&... args) {
-        static_assert(std::is_base_of_v<Base, T>, "T should be derivate of Base");
-        auto cur_hash = base_type_hash<Base>::template hash<T>();
-        auto &data = GetData();
-
-        auto cur_iter = data.find(cur_hash);
-        if (cur_iter == data.end()) {
-            assert(false);
-            return typename FuncT::template return_type<T>(nullptr);
-        } else {
-            auto ret = cur_iter->second.template create<T>(std::forward<Ts>(args)...);
-            return ret;
-        }
-    }
-
-    static std::unordered_map<std::size_t, CreatorFunc> &GetData() {
-        static std::unordered_map<std::size_t, CreatorFunc> data;
-        return data;
-    }
-};
-
-template<typename Base, typename CreatorFunc>
 struct creator_by_typename {
 private:
 public:
@@ -233,20 +193,9 @@ template<template<typename ...> class ptr_t,
 struct basic_poly_factory {
     using create_func_T = base_creator_func<ptr_t, Base, Args...>;
 public:
-    ///
-    template<class D, class... T>
-    static typename create_func_T::template return_type<D> make(T &&... args) {
-        return creator_by_typeid<Base, create_func_T>::template make<D>(std::forward<T>(args)...);
-    }
 
     template<class... T>
     static typename create_func_T::template return_type<Base> make_by_name(const std::string_view name, T &&... args) {
-        return creator_by_typename<Base, create_func_T>::template make_by_name(name, std::forward<T>(args)...);
-    }
-
-    template<class ...C, class... T>
-    static typename create_func_T::template return_type<Base>
-    make_by_name_template(const std::string_view name, T &&... args) {
         return creator_by_typename<Base, create_func_T>::template make_by_name(name, std::forward<T>(args)...);
     }
 
@@ -261,7 +210,6 @@ public:
          */
         static bool trigger() {
             static_assert(std::is_final_v<T>, "sub class should have final specified");
-            type_registration<creator_by_typeid<Base, create_func_T>>::template register_derived<T>();
             type_registration<creator_by_typename<Base, create_func_T>>::template register_derived<T>();
             return true;
         }
