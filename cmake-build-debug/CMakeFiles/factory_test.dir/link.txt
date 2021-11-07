@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/factory_test.dir/test/factory_test.cpp.o -o factory_test 
+/usr/bin/c++    -g    CMakeFiles/factory_test.dir/test/factory_test.cpp.o  -o factory_test 

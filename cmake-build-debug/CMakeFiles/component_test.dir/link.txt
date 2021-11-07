@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/component_test.dir/test/component_test.cpp.o -o component_test 
+/usr/bin/c++    -g    CMakeFiles/component_test.dir/test/component_test.cpp.o  -o component_test 

@@ -7,39 +7,41 @@
 #IncludeRegexTransform: 
 
 ../include/factory.h
+type_util.h
+../include/type_util.h
 memory
--
-string
 -
 unordered_map
 -
-vector
--
 cassert
--
-cstdlib
 -
 type_util.h
 ../include/type_util.h
+memory
+-
+unordered_map
+-
+cassert
+-
 
 ../include/type_util.h
+tuple
+-
+string
+-
 string_view
 -
 
-/home/ou/workspace/clion_ws/Template_Factory/test/factory_test.cpp
+/home/ou/workspace/clion_ws/Template_Factory/test/test.cpp
 factory.h
 /home/ou/workspace/clion_ws/Template_Factory/test/factory.h
-iostream
+gtest/gtest.h
 -
-vector
+dbg.h
 -
 pcl/point_types.h
 -
 pcl/point_cloud.h
--
-boost/core/demangle.hpp
--
-functional
 -
 
 /usr/include/pcl-1.8/pcl/PCLHeader.h

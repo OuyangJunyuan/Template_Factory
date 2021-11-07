@@ -12,6 +12,16 @@ endif(MSVC)
 
 find_package(PCL REQUIRED)
 
+find_package(GTest REQUIRED)
+message(=============================================================)
+message("-- option COMPILE_TEST switch on")
+message("-- gtest header: ${GTEST_INCLUDE_DIR}")
+message("-- gtest libraries: ${GTEST_BOTH_LIBRARIES}")
+message(=============================================================)
+
+
+include_directories(${GTEST_INCLUDE_DIR})
+
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include ${PCL_INCLUDE_DIRS})
 
@@ -22,4 +32,6 @@ FILE(GLOB_RECURSE SRC_LISTS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
 add_executable(component_test ${CMAKE_SOURCE_DIR}/test/component_test.cpp)
 add_executable(factory_test ${CMAKE_SOURCE_DIR}/test/factory_test.cpp)
+add_executable(test test/test.cpp)
+target_link_libraries(test ${GTEST_BOTH_LIBRARIES}  pthread )
 

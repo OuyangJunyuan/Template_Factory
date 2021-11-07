@@ -1,87 +1,72 @@
-#pragma once
-
+#ifndef FACTORY_TYPE_UTILS_H
+#define FACTORY_TYPE_UTILS_H
+#include <tuple>
+#include <string>
 #include <string_view>
 
 template<typename T>
-constexpr auto full_type_name() noexcept {
-    std::string_view name, prefix, suffix;
+struct Type {
+private:
+    static constexpr auto type_name_impl() noexcept {
+        std::string_view name, prefix, suffix;
 #ifdef __clang__
-    name = __PRETTY_FUNCTION__;
-    prefix = "auto full_type_name() [T = ";
+        name = __PRETTY_FUNCTION__;
+    prefix = "static auto Type<T>::type_name_impl() [T = ";
     suffix = "]";
 #elif defined(__GNUC__)
-    name = __PRETTY_FUNCTION__;
-    prefix = "constexpr auto full_type_name() [with T = ";
-    suffix = "]";
+        name = __PRETTY_FUNCTION__;
+        prefix = "static constexpr auto Type<T>::type_name_impl() [with T = ";
+        suffix = "]";
 #elif defined(_MSC_VER)
-    name = __FUNCSIG__;
-    prefix = "auto __cdecl full_type_name<";
+        name = __FUNCSIG__;
+    prefix = "static auto __cdecl Type<T>::type_name_impl<";
     suffix = ">(void) noexcept";
 #endif
-    name.remove_prefix(prefix.size());
-    name.remove_suffix(suffix.size());
-    return name;
-}
-
-
-template<typename T>
-constexpr auto full_type_name_str() noexcept {
-    return std::string(full_type_name<T>());
-}
-
-
-
-
-constexpr std::string_view type_name_without_ns(std::string_view full_name) noexcept {
-    auto final_part_pos = full_name.rfind("::");
-    if (final_part_pos == std::string_view::npos) {
-        return full_name;
-    } else {
-        return full_name.substr(final_part_pos + 2);
+        name.remove_prefix(prefix.size());
+        name.remove_suffix(suffix.size());
+        return name;
     }
-}
 
-
-
-template<class ...C>
-auto template_name() {
-    std::string tt((std::string(full_type_name<C>()) + "," +...));
-    tt.erase(tt.size() - 1);
-    tt = '<' + tt + '>';
-    return tt;
-}
-
-template<>
-auto template_name() {
-    return "";
-}
-
-template<class ...C>
-auto append_template_name(const std::string &name) {
-    return name + template_name<C...>();
-}
-
-#define REGISTER_NAME(name, ...) append_template_name<__VA_ARGS__>(name)
-
-
-namespace spiritsaway::entity_component_event {
-
-
-template<typename B>
-class base_type_hash {
-    static std::size_t last_used_id;
 public:
-    template<typename T>
-    static std::enable_if_t<std::is_base_of_v<B, T>, std::size_t> hash() {
-        static const std::size_t id = last_used_id++;
-        return id;
-    }
-
-    static std::size_t max_used() {
-        return last_used_id;
-    }
+    static constexpr auto name = type_name_impl();
 };
 
-template<typename B>
-std::size_t base_type_hash<B>::last_used_id = 0;
-}
+template<typename ...T>
+struct Types {
+private:
+    static constexpr auto type_names_impl() noexcept {
+        std::string_view name = Type<Types<T...>>::name, prefix = "Types";
+        name.remove_prefix(prefix.size());
+        return name;
+    }
+
+    static constexpr auto raw_type_names_impl() noexcept {
+        std::string_view name = type_names_impl(), prefix = "<", suffix = ">";
+        name.remove_prefix(prefix.size());
+        name.remove_suffix(suffix.size());
+        return name;
+    }
+
+public:
+
+    static constexpr size_t size = sizeof...(T);
+    template<size_t N>
+    static constexpr auto name = Type<typename std::tuple_element<N, std::tuple<T...> >::type>::name;
+
+    static constexpr auto names = type_names_impl();
+    static constexpr auto raw_names = raw_type_names_impl();
+};
+
+template<class  ...T>
+inline std::string rename(const std::string &name) { return name + std::string(Types<T...>::names); }
+
+template<>
+inline std::string rename(const std::string &name) { return name; }
+
+#define REGISTER_TO_FACTORY_UNIQUE_ID_MERGE_IMPL(a, b) a ## b //合并用的主体
+#define REGISTER_TO_FACTORY_UNIQUE_ID_MERGE(a, b) REGISTER_TO_FACTORY_UNIQUE_ID_MERGE_IMPL(a, b) //中间层
+#define REGISTER_TO_FACTORY_UNIQUE_ID(name) REGISTER_TO_FACTORY_UNIQUE_ID_MERGE(name, __COUNTER__)
+
+#define RENAME(name, ...) rename<__VA_ARGS__>(name)
+
+#endif
