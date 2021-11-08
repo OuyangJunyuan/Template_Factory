@@ -87,4 +87,6 @@ namespace{static bool REGISTER_TO_FACTORY_UNIQUE_ID(name) = Factory<base,__VA_AR
 REGISTER_TO_FACTORY_IMPL(reigster,REGISTER_REMOVE_PARENTHESES(base),REGISTER_REMOVE_PARENTHESES(der),__VA_ARGS__)
 
 
+
+
 #endif
