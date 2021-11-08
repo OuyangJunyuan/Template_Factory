@@ -31,7 +31,15 @@ private:
 
 public:
     static constexpr auto name = type_name_impl();
+
+    static std::string & str() {
+        static std::string n(name);
+        return n;
+    }
+
+    static auto *c_str() { return str().c_str(); }
 };
+
 
 template<typename ...T>
 struct Types {
@@ -68,10 +76,11 @@ inline std::string decorate(const std::string &name) { return name + std::string
 template<>
 inline std::string decorate(const std::string &name) { return name; }
 
-
 template<class T>
 struct TTypeTrait {
     constexpr static size_t size = 0;
+
+    static std::string with_template_arg(const std::string &name) { return name; }
 };
 
 template<template<class> class TType, class ...T>
@@ -80,7 +89,7 @@ private:
     template<size_t ...N>
     static std::string
     with_template_arg_helper(const std::string &name, std::index_sequence<N...>) {
-        return decorate<arg_type<N>...>(name);
+        return decorate<arg_type < N>...>(name);
     }
 
 public:
